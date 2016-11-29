@@ -23,7 +23,8 @@
   libraryDependencies ++= {
     // val akkaVersion = "2.4.9"
     Seq(
-      "org.scalatest" % "scalatest_2.12" % "3.0.0",
+      "org.scalatest" % "scalatest_2.12" % "3.0.0" % "test",
+      "junit" % "junit" % "4.12" % "test",
       "com.typesafe" % "config" % "1.3.0",
       "org.swinglabs" % "swing-layout" % "1.0.3",
       "org.swinglabs" % "swingx" % "1.6.1"
