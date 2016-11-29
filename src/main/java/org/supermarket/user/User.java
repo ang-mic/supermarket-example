@@ -4,11 +4,13 @@ package org.supermarket.user;
 import java.util.Date;
 
 public class User {
+    private final long id;
     private final String username, password, firstname, lastname, email, contactNumber;
     private final Date dob;
     //    private final Address address;
 
     public User() {
+        this.id = -1;
         this.username = "";
         this.password = "";
         this.firstname = "";
@@ -18,7 +20,8 @@ public class User {
         this.dob = new Date();
     }
 
-    public User(String username,
+    public User(long id,
+                String username,
                 String password,
                 String firstname,
                 String lastname,
@@ -26,6 +29,7 @@ public class User {
                 String contactNumber,
                 Date dob) {
 
+        this.id = id;
         this.username = username;
         this.password = password;
         this.firstname = firstname;
@@ -33,6 +37,10 @@ public class User {
         this.email = email;
         this.contactNumber = contactNumber;
         this.dob = dob;
+    }
+
+    public long id() {
+        return id;
     }
 
     public String username() {
