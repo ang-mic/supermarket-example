@@ -1,10 +1,11 @@
 package org.supermarket.alif;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 /**
  * @author Alif
@@ -17,17 +18,19 @@ import javax.swing.JTextField;
  */
 public class AlProduct {
 
-    private String product_name, category, expiryDate, imagePath;
-    private String product_id;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/YYYY");
+
+    private String id, name, category, imagePath;
     private double price, priceVAT;
     private double weight;
     private int    stock, minStock, maxStock;
+    private Date expiryDate;
 
     public AlProduct() {
-        this.product_name = "";
-        this.product_id = generateId();
+        this.name = "";
+        this.id = generateId();
         this.category = "";
-        this.expiryDate = "";
+        this.expiryDate = new Date();
         this.imagePath = "";
         this.price = 0;
         this.priceVAT = 0;
@@ -37,39 +40,59 @@ public class AlProduct {
         this.maxStock = 0;
     }
 
-    public AlProduct(String name, String category, String expirydate, String imagePath, double priceWithoutVAT,
-                     double VAT, double weight, int stock, int maxstock, int minstock) {
+    public AlProduct(String name, String category, Date expiryDate, String imagePath, double priceWithoutVAT, double
+            VAT, double weight, int stock, int maxStock, int minStock) {
         setName(name);
-        setID(generateId());
+        setId(generateId());
         setCategory(category);
-        setExpiryDate(expirydate);
+        setExpiryDate(expiryDate);
         setImagePath(imagePath);
         setPrice(priceWithoutVAT);
         setPriceWVAT(VAT);
         setWeight(weight);
         setStock(stock);
-        setMaxStock(maxstock);
-        setMinStock(minstock);
+        setMaxStock(maxStock);
+        setMinStock(minStock);
     }
 
-    public void setID(String product_id) {
-        this.product_id = product_id;
+    /**
+     * This is a COPY constructor, allows you to create a copy of an existing object. It solve the problem with the
+     * object reference we saw yesterday
+     *
+     * @param product
+     */
+    public AlProduct(AlProduct product) {
+        setName(product.getName());
+        setId(product.getId());
+        setCategory(product.getCategory());
+        setExpiryDate(product.getExpiryDate());
+        setImagePath(product.getImagePath());
+        setPrice(product.getPrice());
+        setPriceWVAT(product.getPriceWVAT());
+        setWeight(product.getWeight());
+        setStock(product.getStock());
+        setMaxStock(product.getMaxStock());
+        setMinStock(product.getMinStock());
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setCategory(String category) {
         this.category = category;
     }
 
-    public void setName(String product_name) {
-        this.product_name = product_name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setWeight(double weight) {
         this.weight = Math.round(weight);
     }
 
-    public void setExpiryDate(String date) {
-        this.expiryDate = date;
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = new Date(expiryDate.getTime());
     }
 
     public void setPrice(double price) {
@@ -92,23 +115,23 @@ public class AlProduct {
         this.maxStock = maxStock;
     }
 
-    public String getID() {
-        return product_id;
+    public String getId() {
+        return id;
     }
 
-    public String getProductCategory() {
+    public String getCategory() {
         return category;
     }
 
     public String getName() {
-        return product_name;
+        return name;
     }
 
     public double getWeight() {
         return weight;
     }
 
-    public String getExpiryDate() {
+    public Date getExpiryDate() {
         return expiryDate;
     }
 
@@ -185,9 +208,9 @@ public class AlProduct {
 
     }
 
-    public void edit(String ID, String name, String category, double weight, double price, String expiryDate, int
+    public void edit(String ID, String name, String category, double weight, double price, Date expiryDate, int
             stock, int minStock, int maxStock, String imagePath) {
-        setID(ID);
+        setId(ID);
         setName(name);
         setCategory(category);
         setWeight(weight);
@@ -201,28 +224,29 @@ public class AlProduct {
 
     }
 
-    public void getDetails(JTextField ID, JTextField name, JTextField category, JTextField weight, JTextField price,
-                           JTextField expiryDate, JTextField stock, JTextField minStock, JTextField maxStock,
-                           JTextField imagePath) {
+//    public void getDetails(JTextField ID, JTextField name, JTextField category, JTextField weight, JTextField price,
+//                           JTextField expiryDate, JTextField stock, JTextField minStock, JTextField maxStock,
+//                           JTextField imagePath) {
+//
+//        ID.setText(String.valueOf(getId()));
+//        name.setText(getName());
+//        category.setText(getCategory());
+//        weight.setText(String.valueOf(getWeight()));
+//        price.setText(String.valueOf(getPrice()));
+//        expiryDate.setText(getExpiryDate());
+//        stock.setText(String.valueOf(getStock()));
+//        minStock.setText(String.valueOf(getMinStock()));
+//        maxStock.setText(String.valueOf(getMaxStock()));
+//        imagePath.setText(getImagePath());
+//    }
 
-        ID.setText(String.valueOf(getID()));
-        name.setText(getName());
-        category.setText(getProductCategory());
-        weight.setText(String.valueOf(getWeight()));
-        price.setText(String.valueOf(getPrice()));
-        expiryDate.setText(getExpiryDate());
-        stock.setText(String.valueOf(getStock()));
-        minStock.setText(String.valueOf(getMinStock()));
-        maxStock.setText(String.valueOf(getMaxStock()));
-        imagePath.setText(getImagePath());
-    }
-
+    //
     @Override
     public String toString() {
-        return "AlProduct id: " + getID() + "\r\n" + "AlProduct Name: " + getName() + "\r\n" + "Category: " +
-                getProductCategory() + "\r\n" + "Weight: " + getWeight() + "\r\n" + "Price (£): " + getPrice() +
-                "\r\n" + "Price (incl. VAT): " + getPriceWVAT() + "\r\n" + "Expiry Date: " + getExpiryDate() + "\r\n"
-                + "Stock: " + getStock() + "\r\n" + "Min. Stock: " + getMinStock();
+        return "AlProduct id: " + getId() + "\r\n" + "AlProduct Name: " + getName() + "\r\n" + "Category: " +
+                getCategory() + "\r\n" + "Weight: " + getWeight() + "\r\n" + "Price (£): " + getPrice() +
+                "\r\n" + "Price (incl. VAT): " + getPriceWVAT() + "\r\n" + "Expiry Date: " + DATE_FORMAT.format(
+                getExpiryDate()) + "\r\n" + "Stock: " + getStock() + "\r\n" + "Min. Stock: " + getMinStock();
     }
 
 
@@ -235,13 +259,13 @@ public class AlProduct {
                 final String line = fileIn.nextLine();
 
                 if (line.contains(productId)) {
-                    this.product_id = line.substring(16).trim(); //Use the current 'line'
-                    this.product_name = fileIn.nextLine().substring(18);
+                    this.id = line.substring(16).trim(); //Use the current 'line'
+                    this.name = fileIn.nextLine().substring(18);
                     this.category = fileIn.nextLine().substring(10);
                     this.weight = Double.parseDouble(fileIn.nextLine().substring(8));
                     this.price = Double.parseDouble(fileIn.nextLine().substring(11));
                     this.priceVAT = Double.parseDouble(fileIn.nextLine().substring(18));
-                    this.expiryDate = fileIn.nextLine().substring(13);
+                    this.expiryDate = DATE_FORMAT.parse(fileIn.nextLine().substring(13));
                     this.stock = Integer.parseInt(fileIn.nextLine().substring(7));
                     this.minStock = Integer.parseInt(fileIn.nextLine().substring(12));
                     this.maxStock = Integer.parseInt(fileIn.nextLine().substring(12));
@@ -251,14 +275,14 @@ public class AlProduct {
                 }
             }
         }
-        catch (FileNotFoundException e) {
+        catch (FileNotFoundException | ParseException e) {
             e.printStackTrace();
         }
     }
 
     public void saveProductName(File file, boolean append) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, append))) {
-            writer.write(product_id + "\n");
+            writer.write(id + "\n");
             writer.flush();
         }
         catch (IOException ioe) {
@@ -267,6 +291,6 @@ public class AlProduct {
     }
 
     private String generateId() {
-        return product_name + "_" + new Date().getTime();
+        return name + "_" + new Date().getTime();
     }
 }
