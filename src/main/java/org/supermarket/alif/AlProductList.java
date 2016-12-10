@@ -8,38 +8,69 @@ import java.util.Scanner;
 
 public class AlProductList {
 
-    private List<String>    ids;
+    private final static String IDENTIFIERS_FILE_PATH = "product_identifiers.txt";
+
     private List<AlProduct> products;
 
-    public AlProductList(File identifiersFile, File productsFile) {
-        this.ids = loadProductIdentifiers(identifiersFile);
-        this.products = loadAllProducts(productsFile);
+    public AlProductList() {
+        this.products = loadAllProducts();
     }
 
-    //No need to use this outside of the class
-    //    public List<String> getIds() {
-    //        return ids;
-    //    }
 
     public List<AlProduct> getProducts() {
         return products;
     }
 
-    public List<AlProduct> loadAllProducts(File productsFile) {
-        List<AlProduct> products = new ArrayList<>();
-        for (String id : this.ids) {
+    /**
+     * Adds new product to the system. It is an aggregated call of Product.saveDetails(...) and Product.saveIdentifier
+     * (...)
+     */
+    public void addNewProduct(AlProduct newProduct) {
+        newProduct.saveDetails(true);
+        newProduct.saveIdentifier(new File(IDENTIFIERS_FILE_PATH), true);
+        products.add(newProduct);
+    }
+
+    /**
+     * Removes an existing product from the system.
+     */
+    public void removeProduct(AlProduct existingProduct) {
+        existingProduct.deleteDetails();
+        for(AlProduct p : products) {
+            if(p.getId().equals(existingProduct.getId()) ) {
+                products.remove(p);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Loads all the product from the storage (file), this operation relies on the IDs of each product
+     *
+     * @return the existing Products
+     */
+    private List<AlProduct> loadAllProducts() {
+        List<AlProduct> products           = new ArrayList<>();
+        List<String>    productIdentifiers = loadProductIdentifiers();
+
+        for (String id : productIdentifiers) {
             AlProduct product = new AlProduct();
-            product.loadDetails(productsFile, id);
+            product.loadDetails(id);
             products.add(product);
         }
 
         return products;
     }
 
-    private List<String> loadProductIdentifiers(File identifiersFile) {
+    /**
+     * Loads the Product IDs for the storage (file)
+     *
+     * @return all the IDs that exist in the system
+     */
+    private List<String> loadProductIdentifiers() {
         ArrayList<String> identifiers = new ArrayList<>();
 
-        try (Scanner fileIn = new Scanner(identifiersFile)) {
+        try (Scanner fileIn = new Scanner(new File(IDENTIFIERS_FILE_PATH))) {
             while (fileIn.hasNextLine()) {
                 identifiers.add(fileIn.nextLine());
             }

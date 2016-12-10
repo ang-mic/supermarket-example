@@ -3,8 +3,9 @@ package org.supermarket.alif;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Scanner;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import javax.swing.JTextArea;
 
 /**
@@ -14,11 +15,13 @@ import javax.swing.JTextArea;
  *         FIXME: Remove round method, use the Math.round instead
  *         FIXME: Change expiryDate type from String to Date
  *         FIXME: Rename imagePath attribute to imagePath
- *         FIXME: Change the edit(...) to save the product as well, instead of just modify the attributes
+ *         FIXME: Change the editDetails(...) to save the product as well, instead of just modify the attributes
  */
 public class AlProduct {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/YYYY");
+    //TODO: Get them from Resources
+    private final static String           PRODUCTS_FILE_PATH = "products.txt";
+    private static final SimpleDateFormat DATE_FORMAT        = new SimpleDateFormat("dd/MM/YYYY");
 
     private String id, name, category, imagePath;
     private double price, priceVAT;
@@ -190,11 +193,10 @@ public class AlProduct {
      * Note_2: I believe it is better if you don't save the name of every attribute in the file
      * </b>
      *
-     * @param file
      * @param append
      */
-    public void saveDetails(File file, boolean append) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, append))) {
+    public void saveDetails(boolean append) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PRODUCTS_FILE_PATH, append))) {
             writer.write(toString());
             writer.write("\r\nMax. Stock: " + maxStock);
             writer.write("\r\nImage File: " + imagePath);
@@ -208,68 +210,51 @@ public class AlProduct {
 
     }
 
-    public void edit(String ID, String name, String category, double weight, double price, Date expiryDate, int
-            stock, int minStock, int maxStock, String imagePath) {
-        setId(ID);
+    public void editDetails(String name, String category, Date expiryDate, String imagePath, double priceWithoutVAT, double
+            VAT, double weight, int stock, int maxStock, int minStock) {
         setName(name);
         setCategory(category);
-        setWeight(weight);
-        setPrice(price);
-        setPriceWVAT(price);
         setExpiryDate(expiryDate);
-        setStock(stock);
-        setMinStock(minStock);
-        setMaxStock(maxStock);
         setImagePath(imagePath);
+        setPrice(priceWithoutVAT);
+        setPriceWVAT(VAT);
+        setWeight(weight);
+        setStock(stock);
+        setMaxStock(maxStock);
+        setMinStock(minStock);
 
+        updateDetails();
     }
 
-//    public void getDetails(JTextField ID, JTextField name, JTextField category, JTextField weight, JTextField price,
-//                           JTextField expiryDate, JTextField stock, JTextField minStock, JTextField maxStock,
-//                           JTextField imagePath) {
-//
-//        ID.setText(String.valueOf(getId()));
-//        name.setText(getName());
-//        category.setText(getCategory());
-//        weight.setText(String.valueOf(getWeight()));
-//        price.setText(String.valueOf(getPrice()));
-//        expiryDate.setText(getExpiryDate());
-//        stock.setText(String.valueOf(getStock()));
-//        minStock.setText(String.valueOf(getMinStock()));
-//        maxStock.setText(String.valueOf(getMaxStock()));
-//        imagePath.setText(getImagePath());
-//    }
-
-    //
     @Override
     public String toString() {
         return "AlProduct id: " + getId() + "\r\n" + "AlProduct Name: " + getName() + "\r\n" + "Category: " +
-                getCategory() + "\r\n" + "Weight: " + getWeight() + "\r\n" + "Price (£): " + getPrice() +
-                "\r\n" + "Price (incl. VAT): " + getPriceWVAT() + "\r\n" + "Expiry Date: " + DATE_FORMAT.format(
+                getCategory() + "\r\n" + "Weight: " + getWeight() + "\r\n" + "Price (£): " + getPrice() + "\r\n" +
+                "Price (incl. VAT): " + getPriceWVAT() + "\r\n" + "Expiry Date: " + DATE_FORMAT.format(
                 getExpiryDate()) + "\r\n" + "Stock: " + getStock() + "\r\n" + "Min. Stock: " + getMinStock();
     }
 
 
-    public void loadDetails(File file, String productId) {
+    public void loadDetails(String productId) {
 
-        try (Scanner fileIn = new Scanner(file)) {
+        try (Scanner fileIn = new Scanner(new File(PRODUCTS_FILE_PATH))) {
 
             while (fileIn.hasNextLine()) { //TODO: Reduce the iterations
 
                 final String line = fileIn.nextLine();
 
                 if (line.contains(productId)) {
-                    this.id = line.substring(16).trim(); //Use the current 'line'
-                    this.name = fileIn.nextLine().substring(18);
-                    this.category = fileIn.nextLine().substring(10);
-                    this.weight = Double.parseDouble(fileIn.nextLine().substring(8));
-                    this.price = Double.parseDouble(fileIn.nextLine().substring(11));
-                    this.priceVAT = Double.parseDouble(fileIn.nextLine().substring(18));
+                    this.id         = line.substring(16).trim(); //Use the current 'line'
+                    this.name       = fileIn.nextLine().substring(18);
+                    this.category   = fileIn.nextLine().substring(10);
+                    this.weight     = Double.parseDouble(fileIn.nextLine().substring(8));
+                    this.price      = Double.parseDouble(fileIn.nextLine().substring(11));
+                    this.priceVAT   = Double.parseDouble(fileIn.nextLine().substring(18));
                     this.expiryDate = DATE_FORMAT.parse(fileIn.nextLine().substring(13));
-                    this.stock = Integer.parseInt(fileIn.nextLine().substring(7));
-                    this.minStock = Integer.parseInt(fileIn.nextLine().substring(12));
-                    this.maxStock = Integer.parseInt(fileIn.nextLine().substring(12));
-                    this.imagePath = fileIn.nextLine().substring(12);
+                    this.stock      = Integer.parseInt(fileIn.nextLine().substring(7));
+                    this.minStock   = Integer.parseInt(fileIn.nextLine().substring(12));
+                    this.maxStock   = Integer.parseInt(fileIn.nextLine().substring(12));
+                    this.imagePath  = fileIn.nextLine().substring(12);
 
                     break; // Allows you to break out of the loop
                 }
@@ -280,8 +265,8 @@ public class AlProduct {
         }
     }
 
-    public void saveProductName(File file, boolean append) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, append))) {
+    public void saveIdentifier(File identifiersFile, boolean append) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(identifiersFile, append))) {
             writer.write(id + "\n");
             writer.flush();
         }
@@ -290,7 +275,96 @@ public class AlProduct {
         }
     }
 
+    /**
+     * Delete the product from the system (storage file).
+     * <ul>
+     *     Steps:
+     *     <ol>
+     *         <li>Loads all the lines of the Products file into a List</li>
+     *         <li>Removes from the List, all the lines related to the current product</li>
+     *         <li>Finally, rewrites the Products file with the updated data</li>
+     *     </ol>
+     * </ul>
+     */
+    public void deleteDetails() {
+
+        List<String> tempLines = new ArrayList<>();
+        tempLines.addAll(textFileToList(PRODUCTS_FILE_PATH));
+
+        //TODO: It might be better to move it to a Util method
+        //NOTE: This a way to remove elements from a List in Java. Not really pretty...
+        //It finds the ID of the product in the List and removes all the following lines up to the first occurrence of
+        //'###########' (seperates the products in the file)
+        ListIterator<String> it = tempLines.listIterator();
+
+        while (it.hasNext()) {
+            if(it.next().contains(id)) {
+                do {
+                    it.remove();
+                } while(!it.next().equals("###########")); //Set the right Product separator
+                it.remove();
+                break;
+            }
+        }
+
+        listToTextFile(tempLines, PRODUCTS_FILE_PATH);
+    }
+
+    /**
+     * Update the details of the Product (in the Products file). More specific, this methods deletes the
+     * existing details of the Product and then saves the current state of the Product in the Products file.
+     *
+     */
+    public void updateDetails() {
+        deleteDetails();
+        saveDetails(true);
+    }
+
+    /**
+     * Generates a random ID (identifier) for the product. The construction of the ID is based on the product name,
+     * the time of creation and a large random integer, the timestamp guaranties the uniqueness of the ID
+     *
+     * @return a unique ID
+     */
     private String generateId() {
-        return name + "_" + new Date().getTime();
+        return name + "_" + new Date().getTime() + new Random().nextInt(1000000);
+    }
+
+    /**
+     * Reads a text file and puts every line of the file into an List
+     * @param filePath path of the source file
+     * @return a List with the lines of the file
+     */
+    private List<String> textFileToList(String filePath) {
+        List<String> lines = new ArrayList<>();
+        try (Scanner fileIn = new Scanner(new File(filePath))) {
+
+            while (fileIn.hasNextLine()) {
+                lines.add(fileIn.nextLine());
+            }
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return lines;
+    }
+
+    /**
+     * Writes (not append) a List of String to a text file
+     *
+     * @param lines a List of String
+     * @param filePath destination file
+     */
+    private void listToTextFile(List<String> lines, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) {
+            for(String line : lines) {
+                writer.write(line + "\n");
+            }
+            writer.flush();
+        }
+        catch (Exception ioe) {
+            ioe.printStackTrace();
+        }
     }
 }
