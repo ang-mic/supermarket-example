@@ -20,7 +20,7 @@ import javax.swing.JTextArea;
 public class AlProduct {
 
     //TODO: Get them from Resources
-    private final static String           PRODUCTS_FILE_PATH = "products.txt";
+    private static final String           PRODUCTS_FILE_PATH = "products.txt";
     private static final SimpleDateFormat DATE_FORMAT        = new SimpleDateFormat("dd/MM/YYYY");
 
     private String id, name, category, imagePath;
@@ -166,15 +166,6 @@ public class AlProduct {
         return maxStock;
     }
 
-    // public boolean checkForOrder (int inStock, int minQuantity) {
-    //         boolean checkForReorder = false;
-    //         if (inStock <= minQuantity )
-    //         {
-    //             checkForReorder = true;DropWizard
-    //         }
-    //         return checkForReorder;
-    //     }
-
     public void display(JTextArea src) {
         src.append(toString());
     }
@@ -206,8 +197,6 @@ public class AlProduct {
         catch (IOException ioe) {
             ioe.printStackTrace();
         }
-
-
     }
 
     public void editDetails(String name, String category, Date expiryDate, String imagePath, double priceWithoutVAT, double
@@ -262,16 +251,6 @@ public class AlProduct {
         }
         catch (FileNotFoundException | ParseException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void saveIdentifier(File identifiersFile, boolean append) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(identifiersFile, append))) {
-            writer.write(id + "\n");
-            writer.flush();
-        }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
         }
     }
 

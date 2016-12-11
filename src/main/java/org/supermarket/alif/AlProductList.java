@@ -1,7 +1,6 @@
 package org.supermarket.alif;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -27,7 +26,7 @@ public class AlProductList {
      */
     public void addNewProduct(AlProduct newProduct) {
         newProduct.saveDetails(true);
-        newProduct.saveIdentifier(new File(IDENTIFIERS_FILE_PATH), true);
+        saveIdentifier(newProduct.getId(), true);
         products.add(newProduct);
     }
 
@@ -79,5 +78,15 @@ public class AlProductList {
             e.printStackTrace();
         }
         return identifiers;
+    }
+
+    private void saveIdentifier(String productId, boolean append) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(IDENTIFIERS_FILE_PATH, append))) {
+            writer.write(productId + "\n");
+            writer.flush();
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
 }

@@ -14,15 +14,15 @@ import static org.junit.Assert.assertFalse;
 
 public class AlifProductTest {
 
-    @Test
-    public void saveProductToTextFile() {
-        AlProduct testProduct = new AlProduct("product_1", "category_1", new Date(), "image/path", 10.0, 0.2, 50.0, 10,
-                                              100, 5);
-
-        File productsNamesfile = new File("product_identifiers.txt");
-        testProduct.saveDetails(true);
-        testProduct.saveIdentifier(productsNamesfile, true);
-    }
+//    @Test
+//    public void saveProductToTextFile() {
+//        AlProduct testProduct = new AlProduct("product_1", "category_1", new Date(), "image/path", 10.0, 0.2, 50.0, 10,
+//                                              100, 5);
+//
+//        File productsNamesfile = new File("product_identifiers.txt");
+//        testProduct.saveDetails(true);
+//        testProduct.saveIdentifier(productsNamesfile, true);
+//    }
 
     @Test
     public void loadSingleProductFromTextFile() {
@@ -120,14 +120,14 @@ public class AlifProductTest {
         tempLines.forEach(x -> System.out.println(x));
     }
 
-    @Test
-    public void deleteProductFromFile() {
-        AlProduct testProduct = new AlProduct("product_to_be_deleted", "category_1", new Date(), "image/path", 10.0,
-                                              0.2, 50.0, 10, 100, 5);
-        testProduct.saveDetails(true);
-        testProduct.saveIdentifier(new File("product_identifiers.txt"), true);
-        testProduct.deleteDetails();
-    }
+//    @Test
+//    public void deleteProductFromFile() {
+//        AlProduct testProduct = new AlProduct("product_to_be_deleted", "category_1", new Date(), "image/path", 10.0,
+//                                              0.2, 50.0, 10, 100, 5);
+//        testProduct.saveDetails(true);
+//        testProduct.saveIdentifier(new File("product_identifiers.txt"), true);
+//        testProduct.deleteDetails();
+//    }
 
     @Test
     public void editProductInFile() {
@@ -161,6 +161,19 @@ public class AlifProductTest {
         products.removeProduct(testProduct);
     }
 
+
+    @Test
+    public void performUpdate() {
+        AlProductList products = new AlProductList();
+
+        AlProduct testProduct = new AlProduct("product_to_be_deleted", "category_1", new Date(), "image/path",
+                                               10.0,
+                                               0.2, 50.0, 10, 100, 5);
+        products.addNewProduct(testProduct);
+        testProduct.setName("BLABLA");
+        testProduct.updateDetails();
+
+    }
 
     /*
     * storage
