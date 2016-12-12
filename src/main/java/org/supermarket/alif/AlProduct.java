@@ -3,8 +3,6 @@ package org.supermarket.alif;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import javax.swing.JTextArea;
 
@@ -19,8 +17,6 @@ import javax.swing.JTextArea;
  */
 public class AlProduct {
 
-    //TODO: Get them from Resources
-    private static final String           PRODUCTS_FILE_PATH = "products.txt";
     private static final SimpleDateFormat DATE_FORMAT        = new SimpleDateFormat("dd/MM/YYYY");
 
     private String id, name, category, imagePath;
@@ -166,6 +162,10 @@ public class AlProduct {
         return maxStock;
     }
 
+    public String getDateString() {
+        return DATE_FORMAT.format(expiryDate);
+    }
+
     public void display(JTextArea src) {
         src.append(toString());
     }
@@ -186,8 +186,8 @@ public class AlProduct {
      *
      * @param append
      */
-    public void saveDetails(boolean append) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PRODUCTS_FILE_PATH, append))) {
+    public void saveDetails(String productsFilePath, boolean append) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(productsFilePath, append))) {
             writer.write(toString());
             writer.write("\r\nMax. Stock: " + maxStock);
             writer.write("\r\nImage File: " + imagePath);
@@ -200,7 +200,7 @@ public class AlProduct {
     }
 
     public void editDetails(String name, String category, Date expiryDate, String imagePath, double priceWithoutVAT, double
-            VAT, double weight, int stock, int maxStock, int minStock) {
+            VAT, double weight, int stock, int maxStock, int minStock, String productsFilePath) {
         setName(name);
         setCategory(category);
         setExpiryDate(expiryDate);
@@ -212,7 +212,7 @@ public class AlProduct {
         setMaxStock(maxStock);
         setMinStock(minStock);
 
-        updateDetails();
+        updateDetails(productsFilePath);
     }
 
     @Override
@@ -224,17 +224,17 @@ public class AlProduct {
     }
 
 
-    public void loadDetails(String productId) {
+    public void loadDetails(String productId, String productsFilePath) {
 
-        try (Scanner fileIn = new Scanner(new File(PRODUCTS_FILE_PATH))) {
+        try (Scanner fileIn = new Scanner(new File(productsFilePath))) {
 
             while (fileIn.hasNextLine()) { //TODO: Reduce the iterations
 
                 final String line = fileIn.nextLine();
 
                 if (line.contains(productId)) {
-                    this.id         = line.substring(16).trim(); //Use the current 'line'
-                    this.name       = fileIn.nextLine().substring(18);
+                    this.id         = line.substring(14).trim(); //Use the current 'line'
+                    this.name       = fileIn.nextLine().substring(16);
                     this.category   = fileIn.nextLine().substring(10);
                     this.weight     = Double.parseDouble(fileIn.nextLine().substring(8));
                     this.price      = Double.parseDouble(fileIn.nextLine().substring(11));
@@ -265,10 +265,10 @@ public class AlProduct {
      *     </ol>
      * </ul>
      */
-    public void deleteDetails() {
+    public void deleteDetails(String productsFilePath) {
 
         List<String> tempLines = new ArrayList<>();
-        tempLines.addAll(textFileToList(PRODUCTS_FILE_PATH));
+        tempLines.addAll(textFileToList(productsFilePath));
 
         //TODO: It might be better to move it to a Util method
         //NOTE: This a way to remove elements from a List in Java. Not really pretty...
@@ -286,7 +286,7 @@ public class AlProduct {
             }
         }
 
-        listToTextFile(tempLines, PRODUCTS_FILE_PATH);
+        listToTextFile(tempLines, productsFilePath);
     }
 
     /**
@@ -294,9 +294,9 @@ public class AlProduct {
      * existing details of the Product and then saves the current state of the Product in the Products file.
      *
      */
-    public void updateDetails() {
-        deleteDetails();
-        saveDetails(true);
+    public void updateDetails(String productsFilePath) {
+        deleteDetails(productsFilePath);
+        saveDetails(productsFilePath,true);
     }
 
     /**

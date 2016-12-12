@@ -2,6 +2,7 @@ package org.supermarket.alif;
 
 
 import org.junit.Test;
+import supermarket_SW.Product;
 import supermarket_SW.ProductList;
 
 import java.io.*;
@@ -25,22 +26,6 @@ public class AlifProductTest {
 //    }
 
     @Test
-    public void loadSingleProductFromTextFile() {
-        AlProduct testProduct = new AlProduct();
-        testProduct.loadDetails("product_1_1481372235150");
-        System.out.println(testProduct.toString());
-    }
-
-    @Test
-    public void loadAllProductFromTextFile() {
-
-        AlProductList productList = new AlProductList();
-
-        productList.getProducts()
-                   .forEach(p -> System.out.println(p.toString()));
-    }
-
-    @Test
     public void formatDate() {
         //TODO: Fix the set method
         SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/YYYY");
@@ -62,14 +47,6 @@ public class AlifProductTest {
         assertTrue(testProduct2.getName().equals(testProduct1.getName()));
         assertTrue(testProduct2.getCategory().equals(testProduct1.getCategory()));
         assertTrue(testProduct2.getExpiryDate().equals(testProduct1.getExpiryDate()));
-    }
-
-    @Test
-    public void loadProperties() throws IOException {
-        Properties prop = new Properties();
-        prop.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
-        String testProp = prop.getProperty("test");
-        System.out.println(testProp);
     }
 
     @Test
@@ -129,13 +106,13 @@ public class AlifProductTest {
 //        testProduct.deleteDetails();
 //    }
 
-    @Test
-    public void editProductInFile() {
-        AlProduct testProduct = new AlProduct();
-        testProduct.loadDetails("product_1_1481379668885");
-        testProduct.setName("TEST");
-        testProduct.updateDetails();
-    }
+//    @Test
+//    public void editProductInFile() {
+//        AlProduct testProduct = new AlProduct();
+//        testProduct.loadDetails("product_1_1481379668885");
+//        testProduct.setName("TEST");
+//        testProduct.updateDetails();
+//    }
 
     @Test
     public void removeProductFormSystem() {
@@ -162,19 +139,67 @@ public class AlifProductTest {
     }
 
 
+//    @Test
+//    public void performUpdate() {
+//        AlProductList products = new AlProductList();
+//
+//        AlProduct testProduct = new AlProduct("product_to_be_deleted", "category_1", new Date(), "image/path",
+//                                               10.0,
+//                                               0.2, 50.0, 10, 100, 5);
+//        products.addNewProduct(testProduct);
+//        testProduct.setName("BLABLA");
+//        testProduct.updateDetails();
+//
+//    }
+
     @Test
-    public void performUpdate() {
-        AlProductList products = new AlProductList();
-
-        AlProduct testProduct = new AlProduct("product_to_be_deleted", "category_1", new Date(), "image/path",
-                                               10.0,
-                                               0.2, 50.0, 10, 100, 5);
-        products.addNewProduct(testProduct);
-        testProduct.setName("BLABLA");
-        testProduct.updateDetails();
-
+    public void userUtilClass() {
+        AlUtil util = AlUtil.getInstance().setPropertiesFile("config_test.properties");
+        System.out.println(util.getProductsFilePath());
+        System.out.println(util.getProductsIdsFilePath());
     }
 
+
+    @Test
+    public void loadProductById() {
+        AlUtil util   = AlUtil.getInstance();
+        util.setPropertiesFile("config_test.properties");
+        String testId = "test_product_1_0001";
+
+        AlProduct testProduct = new AlProduct();
+        testProduct.loadDetails(testId, util.getProductsFilePath());
+
+        assertTrue("It was: " + testProduct.getId() + " expected: " + testId, testProduct.getId()
+                                                                                         .equals(testId));
+    }
+
+    @Test
+    public void loadAllProducts() {
+        AlUtil.getInstance().setPropertiesFile("config_test.properties");
+
+        AlProductList productList = new AlProductList();
+        assertTrue(productList.getProducts().size() == 3);
+        assertTrue(productList.getProducts().get(0).getId().equals("test_product_1_0001"));
+        assertTrue(productList.getProducts().get(1).getId().equals("test_product_2_0002"));
+        assertTrue(productList.getProducts().get(2).getId().equals("test_product_3_0003"));
+    }
+
+    @Test
+    public void addToWishlist() {
+        AlWishList wishList = new AlWishList("Alif");
+        AlProduct testProduct1 = new AlProduct("product_to_be_deleted", "category_1", new Date(), "image/path", 10.0,
+                                               0.2, 50.0, 10, 100, 5);
+        wishList.addNewProduct(testProduct1);
+    }
+
+    @Test
+    public void loadWishlist() {
+        AlWishList wishList = new AlWishList("Alif");
+        wishList.getProducts().forEach(p -> System.out.println(p.toString()));
+        AlProduct p = new AlProduct();
+        p.setId("product_to_be_deleted_1481563921485565433");
+        wishList.removeProduct(p);
+    }
     /*
     * storage
     *   products

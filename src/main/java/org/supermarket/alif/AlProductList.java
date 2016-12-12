@@ -7,14 +7,17 @@ import java.util.Scanner;
 
 public class AlProductList {
 
-    private final static String IDENTIFIERS_FILE_PATH = "product_identifiers.txt";
-
-    private List<AlProduct> products;
+    //TODO: Get them from Resources
+    //TODO: Hardcode the paths for Al
+    protected String PRODUCTS_FILE_PATH;
+    protected String IDENTIFIERS_FILE_PATH;
+    protected List<AlProduct> products;
 
     public AlProductList() {
+        PRODUCTS_FILE_PATH    = AlUtil.getInstance().getProductsFilePath();
+        IDENTIFIERS_FILE_PATH = AlUtil.getInstance().getProductsIdsFilePath();
         this.products = loadAllProducts();
     }
-
 
     public List<AlProduct> getProducts() {
         return products;
@@ -25,7 +28,7 @@ public class AlProductList {
      * (...)
      */
     public void addNewProduct(AlProduct newProduct) {
-        newProduct.saveDetails(true);
+        newProduct.saveDetails(PRODUCTS_FILE_PATH, true);
         saveIdentifier(newProduct.getId(), true);
         products.add(newProduct);
     }
@@ -34,7 +37,7 @@ public class AlProductList {
      * Removes an existing product from the system.
      */
     public void removeProduct(AlProduct existingProduct) {
-        existingProduct.deleteDetails();
+        existingProduct.deleteDetails(PRODUCTS_FILE_PATH);
         for(AlProduct p : products) {
             if(p.getId().equals(existingProduct.getId()) ) {
                 products.remove(p);
@@ -48,14 +51,14 @@ public class AlProductList {
      *
      * @return the existing Products
      */
-    private List<AlProduct> loadAllProducts() {
+    protected List<AlProduct> loadAllProducts() {
         List<AlProduct> products           = new ArrayList<>();
         List<String>    productIdentifiers = loadProductIdentifiers();
 
         for (String id : productIdentifiers) {
             AlProduct product = new AlProduct();
-            product.loadDetails(id);
-            products.add(product);
+            product.loadDetails(id, PRODUCTS_FILE_PATH);
+            if(id.equals(product.getId())) products.add(product);  // the product only if exists
         }
 
         return products;
