@@ -9,13 +9,13 @@ public class AlProductList {
 
     //TODO: Get them from Resources
     //TODO: Hardcode the paths for Al
-    protected String PRODUCTS_FILE_PATH;
-    protected String IDENTIFIERS_FILE_PATH;
+    protected String          productsFilePath;
+    protected String          identifiersFilePath;
     protected List<AlProduct> products;
 
     public AlProductList() {
-        PRODUCTS_FILE_PATH    = AlUtil.getInstance().getProductsFilePath();
-        IDENTIFIERS_FILE_PATH = AlUtil.getInstance().getProductsIdsFilePath();
+        productsFilePath = "products.txt";
+        identifiersFilePath = "identifiers.txt";
         this.products = loadAllProducts();
     }
 
@@ -28,7 +28,7 @@ public class AlProductList {
      * (...)
      */
     public void addNewProduct(AlProduct newProduct) {
-        newProduct.saveDetails(PRODUCTS_FILE_PATH, true);
+        newProduct.saveDetails(productsFilePath, true);
         saveIdentifier(newProduct.getId(), true);
         products.add(newProduct);
     }
@@ -37,7 +37,7 @@ public class AlProductList {
      * Removes an existing product from the system.
      */
     public void removeProduct(AlProduct existingProduct) {
-        existingProduct.deleteDetails(PRODUCTS_FILE_PATH);
+        existingProduct.deleteDetails(productsFilePath);
         for(AlProduct p : products) {
             if(p.getId().equals(existingProduct.getId()) ) {
                 products.remove(p);
@@ -57,7 +57,7 @@ public class AlProductList {
 
         for (String id : productIdentifiers) {
             AlProduct product = new AlProduct();
-            product.loadDetails(id, PRODUCTS_FILE_PATH);
+            product.loadDetails(id, productsFilePath);
             if(id.equals(product.getId())) products.add(product);  // the product only if exists
         }
 
@@ -72,7 +72,7 @@ public class AlProductList {
     private List<String> loadProductIdentifiers() {
         ArrayList<String> identifiers = new ArrayList<>();
 
-        try (Scanner fileIn = new Scanner(new File(IDENTIFIERS_FILE_PATH))) {
+        try (Scanner fileIn = new Scanner(new File(identifiersFilePath))) {
             while (fileIn.hasNextLine()) {
                 identifiers.add(fileIn.nextLine());
             }
@@ -84,7 +84,7 @@ public class AlProductList {
     }
 
     private void saveIdentifier(String productId, boolean append) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(IDENTIFIERS_FILE_PATH, append))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(identifiersFilePath, append))) {
             writer.write(productId + "\n");
             writer.flush();
         }
